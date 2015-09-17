@@ -61,8 +61,14 @@ def pindel(reference, configFile, args, tempDir, chrome=None):
     if args.input_SV_Calls_for_assembly:
         cmd += ' --input_SV_Calls_for_assembly %s ' %(args.input_SV_Calls_for_assembly)
 
+    if args.breakdancer:
+        cmd += ' --breakdancer %s ' %(args.breakdancer)
+
     if args.exclude is not None:
         cmd += ' --exclude %s' % (args.exclude)
+
+    if args.include is not None:
+        cmd += ' --include %s' % (args.include)
 
     opt_list = [
         ["number_of_threads", "%d"],
@@ -136,7 +142,7 @@ def which(cmd):
     return res
 
 
-def get_bam_seq(inputBamFile, min_size=1):
+def get_bam_seq(inputBamFile, min_size=40000000): ### Changed min_size to 40mil. JHL
     samtools = which("samtools")
     cmd = [samtools, "idxstats", inputBamFile]
     process = subprocess.Popen(args=cmd, stdout=subprocess.PIPE)
@@ -144,7 +150,7 @@ def get_bam_seq(inputBamFile, min_size=1):
     seqs = []
     for line in stdout.split("\n"):
         tmp = line.split("\t")
-        if len(tmp) == 4 and int(tmp[2]) >= min_size:
+        if len(tmp) == 4 and int(tmp[1]) >= min_size:
             seqs.append(tmp[0])
     return seqs
 
@@ -187,6 +193,7 @@ def __main__():
     
     parser.add_argument('--number_of_threads', dest='number_of_threads', type=int, default=2)
     parser.add_argument('--number_of_procs', dest='procs', type=int, default=1)
+    parser.add_argument('--breakdancer', dest='breakdancer')
 
     parser.add_argument('-x', '--max_range_index', dest='max_range_index', type=int, default=None)
     parser.add_argument('--window_size', dest='window_size', type=int, default=None)
@@ -223,6 +230,7 @@ def __main__():
     parser.add_argument('--somatic_hom', type=int, default=6)
 
     parser.add_argument("-J", "--exclude", dest="exclude", default=None)
+    parser.add_argument("-j", "--include", dest="include", default=None)
 
     parser.add_argument('-z', '--input_SV_Calls_for_assembly', dest='input_SV_Calls_for_assembly', action='store_true', default=False)
 
@@ -338,7 +346,7 @@ def __main__():
                 handle.write("indel.filter.referencedate = %s\n" % (datetime.datetime.now().strftime("%Y%m%d")) )
                 handle.write("indel.filter.output = %s\n" % (args.outputSomaticVcfFile))
             
-            execute("%s /opt/pindel/somatic_filter/somatic_indelfilter.pl %s" % (which("perl"), os.path.join(args.workdir, "somatic.indel.filter.config")) )
+            execute("%s /home/exacloud/clinical/RichardsLab/bin/somatic_indelfilter.pl %s" % (which("perl"), os.path.join(args.workdir, "somatic.indel.filter.config")) )
             
                 
 
