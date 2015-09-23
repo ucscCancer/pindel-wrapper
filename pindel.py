@@ -142,7 +142,7 @@ def which(cmd):
     return res
 
 
-def get_bam_seq(inputBamFile, min_size): ### Changed min_size to 40mil. JHL
+def get_bam_seq(inputBamFile, min_size):
     samtools = which("samtools")
     cmd = [samtools, "idxstats", inputBamFile]
     process = subprocess.Popen(args=cmd, stdout=subprocess.PIPE)
