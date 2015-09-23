@@ -142,7 +142,7 @@ def which(cmd):
     return res
 
 
-def get_bam_seq(inputBamFile, min_size=40000000): ### Changed min_size to 40mil. JHL
+def get_bam_seq(inputBamFile, min_size): ### Changed min_size to 40mil. JHL
     samtools = which("samtools")
     cmd = [samtools, "idxstats", inputBamFile]
     process = subprocess.Popen(args=cmd, stdout=subprocess.PIPE)
@@ -231,6 +231,7 @@ def __main__():
 
     parser.add_argument("-J", "--exclude", dest="exclude", default=None)
     parser.add_argument("-j", "--include", dest="include", default=None)
+    parser.add_argument('--min_chrom_size', dest='min_chrom_size', type=int, default='1')
 
     parser.add_argument('-z', '--input_SV_Calls_for_assembly', dest='input_SV_Calls_for_assembly', action='store_true', default=False)
 
@@ -279,7 +280,7 @@ def __main__():
             else:
                 meanInsertSize=insertSize
             meanInsertSizes.append( meanInsertSize )
-            for seq in get_bam_seq(inputBamFile):
+            for seq in get_bam_seq(inputBamFile, args.min_chrom_size):
                 seq_hash[seq] = True
         seqs = seq_hash.keys()
         configFile = config(newInputFiles, meanInsertSizes, sampleTags, tempDir)
@@ -346,7 +347,7 @@ def __main__():
                 handle.write("indel.filter.referencedate = %s\n" % (datetime.datetime.now().strftime("%Y%m%d")) )
                 handle.write("indel.filter.output = %s\n" % (args.outputSomaticVcfFile))
             
-            execute("%s /home/exacloud/clinical/RichardsLab/bin/somatic_indelfilter.pl %s" % (which("perl"), os.path.join(args.workdir, "somatic.indel.filter.config")) )
+            execute("%s /opt/pindel/somatic_filter/somatic_indelfilter.pl %s" % (which("perl"), os.path.join(args.workdir, "somatic.indel.filter.config")) )
             
                 
 

@@ -41,6 +41,7 @@ pindel.py
 --number_of_procs \${GALAXY_SLOTS:-4}
         
 --window_size ${window_size}
+--min_chrom_size $min_chrom_size
         
 <!-- Parameters affecting which structural variants are reported -->
 #if $reportInversions:
@@ -95,7 +96,7 @@ pindel.py
 
 <!-- Miscellaneous parameters -->
 #if $breakdancer.checking == "yes":
-    -input1 $breakdancer.input1
+    --breakdancer $breakdancer.input1
 #end if
 
 #if $IndelCorrection:
@@ -108,6 +109,10 @@ pindel.py
 
 #if str($exclude_list) != "None":
     --exclude ${exclude_list}
+#end if
+
+#if str($include_list) != "None":
+    --include ${include_list}
 #end if
 
 #if $inputs.mode == 'pair':
@@ -165,6 +170,7 @@ pindel.py
 
         <!-- Parameters affecting runtime and memory usage -->
         <param name="window_size" type="integer" value="5" label="Window size" help="for saving RAM, divides the reference in bins of X million bases and only analyzes the reads that belong in the current bin, (default=5 million)" />
+	<param name="min_chrom_size" type="integer" value="1" label="Minimum chromosome size (bp)" help="Set the minimum chromosome size that Pindel will process.  Useful for ignoring unassembled contigs.  A value of 40000000 will only process chromosomes 1-22,X,Y." />
 
         <!-- Parameters affecting which structural variants are reported -->
         <param name="reportInversions" type="boolean" label="Report inversions" checked="true"/>
@@ -243,6 +249,7 @@ pindel.py
         </conditional>
         
         <param name="exclude_list" type="data" format="bed" label="Exclude File" help="Locations to exclude, like centromeres" optional="True"/>
+        <param name="include_list" type="data" format="bed" label="Include File" help="Locations to include, like probe regions" optional="True"/>
 
     </inputs>
 
